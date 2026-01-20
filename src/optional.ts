@@ -1,89 +1,94 @@
 interface BaseOptional<T> {
-    /** `true` when the Option is Some */ readonly some: boolean;
-    /** `true` when the Option is None */ readonly none: boolean;
+  /** `true` when the Option is Some */ readonly some: boolean;
+  /** `true` when the Option is None */ readonly none: boolean;
 
-    /**
-     * Returns the contained `Some` value or a provided default.
-     *
-     *  (This is the `unwrap_or` in rust)
-     */
-    valueOr<T2>(val: T2): T | T2;
+  /**
+   * Returns the contained `Some` value or a provided default.
+   *
+   *  (This is the `unwrap_or` in rust)
+   */
+  valueOr<T2>(val: T2): T | T2;
 
-    /**
-     * Calls `mapper` if the Option is `Some`, otherwise returns `None`.
-     * This function can be used for control flow based on `Option` values.
-     */
-    andThen<T2>(mapper: ((val: T) => Optional<T2>) | ((val: T) => T2)): Optional<T2>;
+  /**
+   * Calls `mapper` if the Option is `Some`, otherwise returns `None`.
+   * This function can be used for control flow based on `Option` values.
+   */
+  andThen<T2>(
+    mapper: ((val: T) => Optional<T2>) | ((val: T) => T2)
+  ): Optional<T2>;
 
-    /**
-     * Maps an `Option<T>` to `Option<U>` by applying a function to a contained `Some` value,
-     * leaving a `None` value untouched.
-     *
-     * This function can be used to compose the Options of two functions.
-     */
-    map<U>(mapper: (val: T) => U): Optional<U>;
+  /**
+   * Maps an `Option<T>` to `Option<U>` by applying a function to a contained `Some` value,
+   * leaving a `None` value untouched.
+   *
+   * This function can be used to compose the Options of two functions.
+   */
+  map<U>(mapper: (val: T) => U): Optional<U>;
 
-    /** Merges this option with another. If either is None, returns None. */
-    merge<U, O>(other: Optional<U>, func: (val: T, otherVal: U) => O | Optional<O>): Optional<O>;
+  /** Merges this option with another. If either is None, returns None. */
+  merge<U, O>(
+    other: Optional<U>,
+    func: (val: T, otherVal: U) => O | Optional<O>
+  ): Optional<O>;
 
-    /** Checks if both options are the same. */
-    equals<U>(other: Optional<U>): boolean;
+  /** Checks if both options are the same. */
+  equals<U>(other: Optional<U>): boolean;
 
-    clone(): BaseOptional<T>;
+  clone(): BaseOptional<T>;
 }
 
 /**
  * Contains the None value
  */
 export class NoneImpl implements BaseOptional<never> {
-    readonly some = false;
-    readonly none = true;
+  readonly some = false;
+  readonly none = true;
 
-    /**
-     * Returns the contained `Some` value or a provided default.
-     *
-     *  (This is the `unwrap_or` in rust)
-     */
-    public valueOr<T2>(val: T2): T2 {
-        return val;
-    }
+  /**
+   * Returns the contained `Some` value or a provided default.
+   *
+   *  (This is the `unwrap_or` in rust)
+   */
+  public valueOr<T2>(val: T2): T2 {
+    return val;
+  }
 
-    /**
-     * Maps an `Option<T>` to `Option<U>` by applying a function to a contained `Some` value,
-     * leaving a `None` value untouched.
-     *
-     * This function can be used to compose the Options of two functions.
-     */
-    public map(_mapper: unknown): None {
-        return this;
-    }
+  /**
+   * Maps an `Option<T>` to `Option<U>` by applying a function to a contained `Some` value,
+   * leaving a `None` value untouched.
+   *
+   * This function can be used to compose the Options of two functions.
+   */
+  public map(_mapper: unknown): None {
+    return this;
+  }
 
-    /**
-     * Calls `mapper` if the Option is `Some`, otherwise returns `None`.
-     * This function can be used for control flow based on `Option` values.
-     */
-    public andThen(_op: unknown): None {
-        return this;
-    }
+  /**
+   * Calls `mapper` if the Option is `Some`, otherwise returns `None`.
+   * This function can be used for control flow based on `Option` values.
+   */
+  public andThen(_op: unknown): None {
+    return this;
+  }
 
-    /** Merges this option with another. */
-    public merge<U, O>(
-        _other: Optional<U>,
-        _func: (val: never, otherVal: U) => O | Optional<O>
-    ): Optional<O> {
-        return this;
-    }
+  /** Merges this option with another. */
+  public merge<U, O>(
+    _other: Optional<U>,
+    _func: (val: never, otherVal: U) => O | Optional<O>
+  ): Optional<O> {
+    return this;
+  }
 
-    public equals<T>(other: Optional<T>): boolean {
-        if (other instanceof NoneImpl) {
-            return true;
-        }
-        return false;
+  public equals<T>(other: Optional<T>): boolean {
+    if (other instanceof NoneImpl) {
+      return true;
     }
+    return false;
+  }
 
-    public clone() {
-        return None;
-    }
+  public clone() {
+    return None;
+  }
 }
 
 // Export None as a singleton, then freeze it so it can't be modified
@@ -96,108 +101,112 @@ Object.freeze(None);
  * Contains the success value
  */
 export class SomeImpl<T> implements BaseOptional<T> {
-    readonly some!: true;
-    readonly none!: false;
-    readonly val!: T;
+  readonly some!: true;
+  readonly none!: false;
+  readonly val!: T;
 
-    constructor(val: T) {
-        if (!(this instanceof SomeImpl)) {
-            return new SomeImpl(val);
-        }
-
-        this.some = true;
-        this.none = false;
-        this.val = val;
+  constructor(val: T) {
+    if (!(this instanceof SomeImpl)) {
+      return new SomeImpl(val);
     }
 
-    /**
-     * Returns the contained `Some` value or a provided default.
-     *
-     *  (This is the `unwrap_or` in rust)
-     */
-    public valueOr(_val: unknown): T {
-        return this.val;
-    }
+    this.some = true;
+    this.none = false;
+    this.val = val;
+  }
 
-    /**
-     * Maps an `Option<T>` to `Option<U>` by applying a function to a contained `Some` value,
-     * leaving a `None` value untouched.
-     *
-     * This function can be used to compose the Options of two functions.
-     */
-    public map<T2>(mapper: (val: T) => T2): Some<T2> {
-        return Some(mapper(this.val));
-    }
+  /**
+   * Returns the contained `Some` value or a provided default.
+   *
+   *  (This is the `unwrap_or` in rust)
+   */
+  public valueOr(_val: unknown): T {
+    return this.val;
+  }
 
-    /**
-     * Calls `mapper` if the Option is `Some`, otherwise returns `None`.
-     * This function can be used for control flow based on `Option` values.
-     */
-    public andThen<T2>(mapper: ((val: T) => Optional<T2>) | ((val: T) => T2)): Optional<T2> {
-        const result = mapper(this.val);
-        if (result instanceof SomeImpl || result instanceof NoneImpl) {
-            return result;
-        }
-        return Some(result);
-    }
+  /**
+   * Maps an `Option<T>` to `Option<U>` by applying a function to a contained `Some` value,
+   * leaving a `None` value untouched.
+   *
+   * This function can be used to compose the Options of two functions.
+   */
+  public map<T2>(mapper: (val: T) => T2): Some<T2> {
+    return Some(mapper(this.val));
+  }
 
-    public merge<U, O>(
-        other: Optional<U>,
-        func: (val: T, otherVal: U) => Optional<O> | O
-    ): Optional<O> {
-        if (other.none) {
-            return other;
-        }
-        const returnee = func(this.val, other.safeValue());
-        if (IsOptional(returnee)) {
-            return returnee;
-        }
-        return Some(returnee);
+  /**
+   * Calls `mapper` if the Option is `Some`, otherwise returns `None`.
+   * This function can be used for control flow based on `Option` values.
+   */
+  public andThen<T2>(
+    mapper: ((val: T) => Optional<T2>) | ((val: T) => T2)
+  ): Optional<T2> {
+    const result = mapper(this.val);
+    if (result instanceof SomeImpl || result instanceof NoneImpl) {
+      return result;
     }
+    return Some(result);
+  }
 
-    /**
-     * Returns the contained `Some` value, but never throws.
-     * Unlike `unwrap()`, this method doesn't throw and is only callable on an Some<T>
-     *
-     * Therefore, it can be used instead of `unwrap()` as a maintainability safeguard
-     * that will fail to compile if the type of the Option is later changed to a None that can actually occur.
-     *
-     * (this is the `into_Some()` in rust)
-     */
-    public safeValue(): T {
-        return this.val;
+  public merge<U, O>(
+    other: Optional<U>,
+    func: (val: T, otherVal: U) => Optional<O> | O
+  ): Optional<O> {
+    if (other.none) {
+      return other;
     }
+    const returnee = func(this.val, other.safeValue());
+    if (IsOptional(returnee)) {
+      return returnee;
+    }
+    return Some(returnee);
+  }
 
-    public equals(other: Optional<unknown>): boolean {
-        if (other instanceof NoneImpl) {
-            return false;
-        }
-        return other.safeValue() === this.val;
-    }
+  /**
+   * Returns the contained `Some` value, but never throws.
+   * Unlike `unwrap()`, this method doesn't throw and is only callable on an Some<T>
+   *
+   * Therefore, it can be used instead of `unwrap()` as a maintainability safeguard
+   * that will fail to compile if the type of the Option is later changed to a None that can actually occur.
+   *
+   * (this is the `into_Some()` in rust)
+   */
+  public safeValue(): T {
+    return this.val;
+  }
 
-    public clone() {
-        return Some(this.val);
+  public equals(other: Optional<unknown>): boolean {
+    if (other instanceof NoneImpl) {
+      return false;
     }
+    return other.safeValue() === this.val;
+  }
+
+  public clone() {
+    return Some(this.val);
+  }
 }
 
 // This allows Some to be callable - possible because of the es5 compilation target
 export function Some<T>(val: T): SomeImpl<T> {
-    return new SomeImpl<T>(val);
+  return new SomeImpl<T>(val);
 }
 export type Some<T> = SomeImpl<T>;
 
 export type Optional<T> = Some<T> | None;
 
 export function IsOptional<T = unknown>(value: unknown): value is Optional<T> {
-    return value instanceof SomeImpl || value === None;
+  return value instanceof SomeImpl || value === None;
 }
 
-export function WrapOptional<T = unknown>(value: T | null | undefined): Optional<T> {
-    if (value === undefined) {
-        return None;
-    }
-    if (value === null) {
-        return None;
-    }
-    return Some(value);
+export function WrapOptional<T = unknown>(
+  value: T | null | undefined
+): Optional<T> {
+  if (value === undefined) {
+    return None;
+  }
+  if (value === null) {
+    return None;
+  }
+  return Some(value);
 }

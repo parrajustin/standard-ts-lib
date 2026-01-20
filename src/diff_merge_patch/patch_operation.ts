@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /**
  * PatchOperation has been derived from patch_obj in diff-match-patch by Neil Fraser
  * and the TypeScript of diffMatchPatch.ts in ng-diff-match-patch by Elliot Forbes.
@@ -25,76 +26,76 @@
  * limitations under the License.
  */
 
-import { DiffOp } from "./diff_op";
-import type { DiffPair } from "./diff_type";
+import { DiffOp } from './diff_op';
+import type { DiffPair } from './diff_type';
 
 /**
  * Class representing one patch operation.
  * @constructor
  */
 export class PatchOperation {
-    public diffs: DiffPair[] = [];
-    public start1 = 0;
-    public start2 = 0;
-    public length1 = 0;
-    public length2 = 0;
+  public diffs: DiffPair[] = [];
+  public start1 = 0;
+  public start2 = 0;
+  public length1 = 0;
+  public length2 = 0;
 
-    /**
-     * Emmulate GNU diff's format.
-     * Header: @@ -382,8 +481,9 @@
-     * Indicies are printed as 1-based, not 0-based.
-     */
-    public toString(): string {
-        let coords1;
-        let coords2;
-        if (this.length1 === 0) {
-            coords1 = `${this.start1},0`;
-        } else if (this.length1 === 1) {
-            coords1 = this.start1 + 1;
-        } else {
-            coords1 = `${this.start1 + 1},${this.length1}`;
-        }
-        if (this.length2 === 0) {
-            coords2 = `${this.start2},0`;
-        } else if (this.length2 === 1) {
-            coords2 = this.start2 + 1;
-        } else {
-            coords2 = `${this.start2 + 1},${this.length2}`;
-        }
-        const text = [`@@ -${coords1} +${coords2} @@\n`];
-        let op;
-        // Escape the body of the patch with %xx notation.
-        for (let x = 0; x < this.diffs.length; x++) {
-            switch (this.diffs[x]![0]) {
-                case DiffOp.INSERT:
-                    op = "+";
-                    break;
-                case DiffOp.DELETE:
-                    op = "-";
-                    break;
-                case DiffOp.EQUAL:
-                    op = " ";
-                    break;
-            }
-            text[x + 1] = op + encodeURI(this.diffs[x]![1]) + "\n";
-        }
-        return text.join("").replace(/%20/g, " ");
+  /**
+   * Emmulate GNU diff's format.
+   * Header: @@ -382,8 +481,9 @@
+   * Indicies are printed as 1-based, not 0-based.
+   */
+  public toString(): string {
+    let coords1;
+    let coords2;
+    if (this.length1 === 0) {
+      coords1 = `${this.start1},0`;
+    } else if (this.length1 === 1) {
+      coords1 = this.start1 + 1;
+    } else {
+      coords1 = `${this.start1 + 1},${this.length1}`;
     }
+    if (this.length2 === 0) {
+      coords2 = `${this.start2},0`;
+    } else if (this.length2 === 1) {
+      coords2 = this.start2 + 1;
+    } else {
+      coords2 = `${this.start2 + 1},${this.length2}`;
+    }
+    const text = [`@@ -${coords1} +${coords2} @@\n`];
+    let op;
+    // Escape the body of the patch with %xx notation.
+    for (let x = 0; x < this.diffs.length; x++) {
+      switch (this.diffs[x]![0]) {
+        case DiffOp.INSERT:
+          op = '+';
+          break;
+        case DiffOp.DELETE:
+          op = '-';
+          break;
+        case DiffOp.EQUAL:
+          op = ' ';
+          break;
+      }
+      text[x + 1] = op + encodeURI(this.diffs[x]![1]) + '\n';
+    }
+    return text.join('').replace(/%20/g, ' ');
+  }
 }
 
 /**
  * Represents a change to the base to get to the test.
  */
 export class ChangeOperation {
-    constructor(
-        public op: DiffOp,
-        public baseStart = 0,
-        public testStart = 0,
-        public baseEnd = 0,
-        public testEnd = 0,
-        public baseLength = 0,
-        public testLength = 0,
-        public baseContent = "",
-        public testContent = ""
-    ) {}
+  constructor(
+    public op: DiffOp,
+    public baseStart = 0,
+    public testStart = 0,
+    public baseEnd = 0,
+    public testEnd = 0,
+    public baseLength = 0,
+    public testLength = 0,
+    public baseContent = '',
+    public testContent = ''
+  ) {}
 }

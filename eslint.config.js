@@ -141,7 +141,7 @@ const config = tseslint.config({
             "fixStyle": 'separate-type-imports',
             "prefer": 'type-imports',
           }],
-        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-non-null-assertion": "error",
         "@typescript-eslint/prefer-string-starts-ends-with": "off",
         "no-console": 1, // Means warning
         "prettier/prettier": 2 // Means error

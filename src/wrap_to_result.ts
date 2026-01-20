@@ -1,7 +1,7 @@
-import type { Result } from "./result";
-import { Err, Ok, IsErr } from "./result";
-import { ConvertToUnknownError } from "./utils";
-import { ErrorCode, StatusError } from "./status_error";
+import type { Result } from './result';
+import { Err, Ok, IsErr } from './result';
+import { ConvertToUnknownError } from './utils';
+import { ErrorCode, StatusError } from './status_error';
 
 /**
  * Wraps a function that may possibly throw an error in a `Result`.
@@ -11,32 +11,36 @@ import { ErrorCode, StatusError } from "./status_error";
  * @returns
  */
 export function WrapToResult<T>(
-    func: () => T,
-    textForUnknown: string,
-    ...mutators: ((error: StatusError) => void)[]
+  func: () => T,
+  textForUnknown: string,
+  ...mutators: ((error: StatusError) => void)[]
 ): Result<T, StatusError> {
-    try {
-        return Ok(func());
-    } catch (e) {
-        let outputError: StatusError;
-        if (IsErr(e)) {
-            if (e.val instanceof StatusError) {
-                outputError = e.val;
-            } else {
-                outputError = new StatusError(ErrorCode.UNKNOWN, textForUnknown);
-                outputError.setPayload("original_error", e.val);
-            }
-        } else if (e instanceof StatusError) {
-            outputError = e;
-        } else if (e instanceof Error) {
-            outputError = new StatusError(ErrorCode.UNKNOWN, `${textForUnknown} [${e.message}]`, e);
-            outputError.setPayload("error", e);
-        } else {
-            outputError = ConvertToUnknownError(textForUnknown)(e);
-        }
-        for (const mutator of mutators) {
-            outputError.with(mutator);
-        }
-        return Err(outputError);
+  try {
+    return Ok(func());
+  } catch (e) {
+    let outputError: StatusError;
+    if (IsErr(e)) {
+      if (e.val instanceof StatusError) {
+        outputError = e.val;
+      } else {
+        outputError = new StatusError(ErrorCode.UNKNOWN, textForUnknown);
+        outputError.setPayload('original_error', e.val);
+      }
+    } else if (e instanceof StatusError) {
+      outputError = e;
+    } else if (e instanceof Error) {
+      outputError = new StatusError(
+        ErrorCode.UNKNOWN,
+        `${textForUnknown} [${e.message}]`,
+        e
+      );
+      outputError.setPayload('error', e);
+    } else {
+      outputError = ConvertToUnknownError(textForUnknown)(e);
     }
+    for (const mutator of mutators) {
+      outputError.with(mutator);
+    }
+    return Err(outputError);
+  }
 }

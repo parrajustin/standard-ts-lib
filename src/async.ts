@@ -5,10 +5,10 @@
  * @returns array of promises for the data.
  */
 export function AsyncForEach<InputType, OutputType>(
-    data: InputType[],
-    cb: (input: InputType) => Promise<OutputType>
+  data: InputType[],
+  cb: (input: InputType) => Promise<OutputType>
 ): Promise<OutputType>[] {
-    return data.map((innerData) => {
-        return Promise.resolve(cb(innerData));
-    });
+  return data.map((innerData) => {
+    return Promise.resolve(cb(innerData));
+  });
 }
