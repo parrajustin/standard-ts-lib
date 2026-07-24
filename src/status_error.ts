@@ -70,6 +70,11 @@ export class StatusError {
     return this;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public getPayload(): Map<string, any> {
+    return this._additionalData;
+  }
+
   public toString(includeStack = true): string {
     const data: string[] = [];
     for (const entry of this._additionalData.entries()) {
